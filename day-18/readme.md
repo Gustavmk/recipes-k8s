@@ -40,7 +40,7 @@ A definição da Role consiste em um arquivo onde definimos quais são as permis
 ## apiGroups
 
 São os grupos de recursos do Kubernetes, que são divididos em core e named, você pode consultar todos os grupos de recursos do Kubernetes através do comando kubectl api-resources.
-
+ 
 - `kubectl api-resources -o wide` listará todos os recursos disponíveis para delegação 
 - Resources em "v1" são recursos cores do Cluster.
 - `kubectl api-resources --namespaced=false` -> todos recursos que não são vinculados a um namespace. 
@@ -108,7 +108,12 @@ kubectl config set-credentials developer --client-certificate=developer-k8s.crt 
 kubectl config set-context developer --cluster=kind-kind --namespace=dev --user=developer
 
 # Para que você possa pegar os nomes do cluster, basta utilizar o comando kubectl config get-clusters, assim você poderá pegar o nome do cluster que você quer utilizar.
-kubectl config get-clusters,
+kubectl config get-clusters
+
+# Lista os usuários configurados no kubeclt. Os usuários podem ser de diferentes clusters
+k config get-users 
+
+k auth can-i --list 
 ```
 
 
