@@ -27,4 +27,9 @@ kubectl certificate approve developer
 k get csr developer -o jsonpath='{.status.certificate}' | base64 --decode > developer-k8s.crt  # com o retorno do certificado, podemos utilizar esse certificado para acesso ao Cluster.
 ```
 
+## Criando uma role
 
+- `kubectl api-resources -o wide` listará todos os recursos disponíveis para delegação 
+- Resources em "v1" são recursos cores do Cluster.
+- `kubectl api-resources --namespaced=false` -> todos recursos que não são vinculados a um namespace. 
+- `kubectl api-resources --namespaced=false | grep role` -> Abrangem o cluster inteiro por isso são namespaced=false
