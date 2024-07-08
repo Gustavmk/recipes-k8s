@@ -29,7 +29,53 @@ k get csr developer -o jsonpath='{.status.certificate}' | base64 --decode > deve
 
 ## Criando uma role
 
+A definição da Role consiste em um arquivo onde definimos quais são as permissões que o usuário terá no cluster, e para quais recursos ele terá acesso. Dentro da Role é onde definimos:
+
+1. Qual é o namespace que o usuário terá acesso.
+2. Quais apiGroups o usuário terá acesso.
+3. Quais recursos o usuário terá acesso.
+4. Quais verbos o usuário terá acesso.
+
+
+## apiGroups
+
+São os grupos de recursos do Kubernetes, que são divididos em core e named, você pode consultar todos os grupos de recursos do Kubernetes através do comando kubectl api-resources.
+
 - `kubectl api-resources -o wide` listará todos os recursos disponíveis para delegação 
 - Resources em "v1" são recursos cores do Cluster.
 - `kubectl api-resources --namespaced=false` -> todos recursos que não são vinculados a um namespace. 
 - `kubectl api-resources --namespaced=false | grep role` -> Abrangem o cluster inteiro por isso são namespaced=false
+
+Onde a primeira coluna é o nome do recurso, a segunda coluna é o nome abreviado do recurso, a terceira coluna é a versão da API que o recurso está, a quarta coluna indica se o recurso é ou não Namespaced, e a quinta coluna é o tipo do recurso.
+
+## Recursos
+
+São os recursos do Kubernetes, que são divididos em core e named, você pode consultar todos os recursos do Kubernetes através do comando kubectl api-resources.
+
+
+## Verbos
+
+Os verbos são divididos em:
+
+create: Permite que o usuário crie um recurso.
+delete: Permite que o usuário delete um recurso.
+deletecollection: Permite que o usuário delete uma coleção de recursos.
+get: Permite que o usuário obtenha um recurso.
+list: Permite que o usuário liste os recursos.
+patch: Permite que o usuário atualize um recurso.
+update: Permite que o usuário atualize um recurso.
+watch: Permite que o usuário acompanhe as alterações de um recurso.
+
+
+```bash
+# criando a role
+
+k apply -f rbac-developer.yml           
+
+k describe role -n dev developer 
+
+# Fazendo vinculo da role para o user
+k apply -f rbac-role-binding.yml 
+k get rolebindings.rbac.authorization.k8s.io -n dev developer
+k describe rolebindings.rbac.authorization.k8s.io -n dev developer       
+```
