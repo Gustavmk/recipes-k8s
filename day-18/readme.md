@@ -78,4 +78,37 @@ k describe role -n dev developer
 k apply -f rbac-role-binding.yml 
 k get rolebindings.rbac.authorization.k8s.io -n dev developer
 k describe rolebindings.rbac.authorization.k8s.io -n dev developer       
+
 ```
+
+### No arquivo acima, estamos definindo as seguintes informações:
+
+- apiVersion: Versão da API que estamos utilizando para criar o nosso usuário.
+- kind: Tipo do recurso que estamos criando, no caso, um RoleBinding.
+- metadata.name: Nome da nossa RoleBinding.
+- metadata.namespace: Namespace que a nossa RoleBinding será criada.
+- subjects: Usuários que terão acesso a Role.
+- subjects.kind: Tipo do usuário, que no caso é User.
+- subjects.name: Nome do usuário, que no caso é developer.
+- roleRef: Referência da Role que o usuário terá acesso.
+- roleRef.kind: Tipo da Role, que no caso é Role.
+- roleRef.name: Nome da Role, que no caso é developer.
+- roleRef.apiGroup: Grupo de recursos da Role, que no caso é rbac.authorization.k8s.io.
+
+### Adicionado certificado ao kubeconfig
+
+```bash
+# O comando kubectl config set-credentials é utilizado para adicionar um novo usuário no kubeconfig, e ele recebe os seguintes parametros:
+kubectl config set-credentials developer --client-certificate=developer-k8s.crt --client-key=developer.key --embed-certs=true
+# --client-certificate: Caminho do certificado do usuário.
+# --client-key: Caminho da chave do usuário.
+# --embed-certs: Indica se o certificado deve ser embutido no kubeconfig.
+
+# Agora precisamos criar um contexto para o nosso usuário, para isso, vamos utilizar o comando kubectl config set-context:
+kubectl config set-context developer --cluster=kind-kind --namespace=dev --user=developer
+
+# Para que você possa pegar os nomes do cluster, basta utilizar o comando kubectl config get-clusters, assim você poderá pegar o nome do cluster que você quer utilizar.
+kubectl config get-clusters,
+```
+
+
