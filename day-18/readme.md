@@ -114,6 +114,12 @@ kubectl config get-clusters
 k config get-users 
 
 k auth can-i --list 
+
+
+# Clenup
+
+kubectl config unset users.developer     # remove user
+kubectl config delete-context developer  # remove context
 ```
 
 
