@@ -17,3 +17,15 @@ k get clusterrole  # lista todas clusterRole nativas
 k apply -f platform/rbac-platform.yml
 
 k apply -f platform/rbac-role-binding.yml
+
+
+# TOKEN
+
+```bash
+TOKEN=$(k get secret sa-cluster -o jsonpath='{.data.token}' | base64 -d)
+kubectl config set-credentials cluster-sa-token --token=$TOKEN
+
+k config set-context cluster-sa --cluster=kind-kind --namespace default --user=cluster-sa-token
+
+# k config get-users  - kubectl config get-clusters
+``` 
