@@ -5,6 +5,9 @@ metadata:
 subjects:
 - kind: User
   name: platform
+- kind: ServiceAccount
+  name: cluster-user-token
+  namespace: default
 roleRef: 
   kind: ClusterRole
   name: platform
