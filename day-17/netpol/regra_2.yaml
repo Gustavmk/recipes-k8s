@@ -1,13 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: primeira-netpol
+  name: segunda-netpol
   namespace: default
 spec:
   podSelector: {}
-  - ingress
-    ingress:
-    - from:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: giropops
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: giropops
