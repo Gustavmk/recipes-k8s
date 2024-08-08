@@ -2,6 +2,8 @@ k create namespace dev
 
 k run redis --image redis --dry-run=client -o yaml > redis.yaml
 
+k delete pod alpine-debug ; kubectl run -i --tty --rm alpine-debug --image=alpine --restart=Never -- sh 
+
 # valide as labels do namepsace
 k get ns --show-labels
 
