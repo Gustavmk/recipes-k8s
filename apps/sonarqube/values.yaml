@@ -1,0 +1,19 @@
+account:
+# The values can be set to define the current and the (new) custom admin passwords at the startup (the username will remain "admin")
+  adminPassword: admin
+  currentAdminPassword: admin
+
+ingress:
+  enabled: truee
+  # Used to create an Ingress record.
+  hosts:
+    - name: sonarqube.yourdomain.com.br
+      # Different clouds or configurations might need /* as the default path
+      path: "/"
+      pathType: "Prefix"
+      # For additional control over serviceName and servicePort
+      # serviceName: someService
+      # servicePort: somePort
+  annotations: {}
+  # kubernetes.io/tls-acme: "true"
+  ingressClassName: nginx
