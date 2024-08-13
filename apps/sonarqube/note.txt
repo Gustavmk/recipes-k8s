@@ -3,6 +3,15 @@
 helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
 helm repo update
 kubectl create namespace sonarqube
-helm upgrade --install -n sonarqube sonarqube sonarqube/sonarqube -f values.yaml
+ 
+# Installing the SonarQube 9.9 LTA chart
+helm upgrade --install -n sonarqube sonarqube sonarqube/sonarqube --version '~8' -f apps/sonarqube/values.yaml
+
+# remove
+
+helm uninstall -n sonarqube sonarqube  
+
+k get secret -n sonarqube sonarqube-sonarqube-admin-password -o jsonpath='{.data.currentPassword}' | base64 -d 
+k get secret -n sonarqube sonarqube-sonarqube-admin-password -o jsonpath='{.data.password}' | base64 -d  
 
 # add sonarqube dns on hosts file
