@@ -23,7 +23,3 @@ kubectl taint nodes strigus-worker1 key=value:NoSchedule
 
 Diferente do efeito NoSchedule, o efeito NoExecute faz com que os Pods existentes sejam removidos se não tiverem uma Toleration correspondente.
 
-NODE_NAME='aks-syspool001-57110861-vmss000003'
-kubectl taint nodes $NODE_NAME  maintance=on:NoSchedule
-
-kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=$NODE_NAME
