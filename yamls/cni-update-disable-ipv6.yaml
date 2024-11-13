@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: cni-update
+  name: cni-update
+spec:
+  selector:
+    matchLabels:
+      component: cni-update
+      tier: node
+  template:
+    metadata:
+      labels:
+        component: cni-update
+        tier: node
+    spec:
+      #Enable node selector in case you need to run on specific node pool      
+      #nodeSelector:
+      #  agentpool: default02      
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          #Update CNI version to 1.1.6
+          if /opt/cni/bin/azure-vnet -v| grep 'v1.1.6';then
+          /opt/cni/bin/azure-vnet -v
+          else
+          wget -O /tmp/upgrade-cni.sh https://raw.githubusercontent.com/Azure/azure-container-networking/master/scripts/install-cni-plugin.sh > /dev/null 2>&1; chmod 755 /tmp/upgrade-cni.sh;sudo /tmp/upgrade-cni.sh v1.1.6 >/dev/null 2>&1
+          /opt/cni/bin/azure-vnet -v
+          fi
+          #Disable IPv6
+          if ! /opt/cni/bin/azure-vnet -v| grep 'v1.1.6';then
+           echo "CNI Version is still:" `/opt/cni/bin/azure-vnet -v`
+           echo ipv6 is not disabled
+          else
+            if ip a | grep "inet6"; then
+            echo ipv6 is not disabled
+            if cat /etc/default/grub | grep "GRUB_CMDLINE_LINUX_DEFAULT=" | grep "ipv6.disable=1"; then
+              echo GRUB_CMDLINE_LINUX_DEFAULT is already disabled
+            else
+              echo disabling GRUB_CMDLINE_LINUX_DEFAULT
+              sed -i 's/\bGRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 /g' /etc/default/grub
+            fi
+            if cat /etc/default/grub | grep "GRUB_CMDLINE_LINUX=" | grep "ipv6.disable=1"; then
+              echo GRUB_CMDLINE_LINUX is already disable
+            else
+              echo disabling GRUB_CMDLINE_LINUX
+              sed -i 's/\bGRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="ipv6.disable=1 /g' /etc/default/grub
+            fi
+            update-grub
+            reboot
+          else
+            echo ipv6 is already disabled
+          fi
+          fi
+          while true; do sleep 100000; done
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: sysctl-patch
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: true
+      dnsPolicy: ClusterFirst
+      hostPID: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      restartPolicy: Always
+  updateStrategy:
+    type: RollingUpdate

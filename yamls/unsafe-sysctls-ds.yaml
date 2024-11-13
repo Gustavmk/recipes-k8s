@@ -1,0 +1,60 @@
+#Ref:https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: unsafe-sysctls
+  name: unsafe-sysctls
+spec:
+  selector:
+    matchLabels:
+      component: unsafe-sysctls
+      tier: node
+  template:
+    metadata:
+      labels:
+        component: unsafe-sysctls
+        tier: node
+    spec:
+      #Enable node selector in case you need to run on specific node pool      
+      #nodeSelector:
+      #  agentpool: default02      
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          if cat /etc/default/kubelet | grep -q 'allowed-unsafe-sysctls';then
+             echo "unsafe sysctls are already allowed"
+          else
+             sed -i "s/KUBELET_CONFIG=/KUBELET_CONFIG=--allowed-unsafe-sysctls 'net.core.*' /g" /etc/default/kubelet
+             systemctl daemon-reload
+             systemctl restart kubelet
+             echo "unsafe sysctls are allowed"
+          fi      
+          while true; do sleep 100000; done
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: sysctl-patch
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: true
+      dnsPolicy: ClusterFirst
+      hostPID: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      restartPolicy: Always
+  updateStrategy:
+    type: RollingUpdate

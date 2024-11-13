@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: patch-irqbalance
+  name: patch-irqbalance
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      component: patch-irqbalance
+      tier: node
+  template:
+    metadata:
+      labels:
+        component: patch-irqbalance
+        tier: node
+    spec:
+#      nodeSelector:
+#        agentpool: test
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          #!/bin/bash
+          if [ ! -f /usr/sbin/irqbalance_backup ]; then
+            echo "patching irqbalance"
+            cp /usr/sbin/irqbalance /usr/sbin/irqbalance_backup
+            apt update
+            apt install irqbalance -y
+            systemctl restart irqbalance
+          else
+            echo "irqbalance is already patched"
+          fi			
+          while true; do sleep infinity; done
+          #while true; do cat /proc/interrupts; grep -H . /proc/irq/2?/eff*list /proc/irq/[23]?/smp*list; sleep 60; done
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: nsenter
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: usr-sbin
+          mountPath: /usr/sbin
+      hostPID: true
+      hostNetwork: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      restartPolicy: Always
+      volumes:
+      - name: usr-sbin
+        hostPath:
+          path: /usr/sbin
+          type: Directory
+  updateStrategy:
+    type: RollingUpdate

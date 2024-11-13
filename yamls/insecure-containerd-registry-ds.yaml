@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: insecure-registry
+  name: insecure-registry
+spec:
+  selector:
+    matchLabels:
+      component: insecure-registry
+      tier: node
+  template:
+    metadata:
+      labels:
+        component: insecure-registry
+        tier: node
+    spec:
+      #Enable node selector in case you need to run on specific node pool      
+      #nodeSelector:
+      #  agentpool: default02      
+      containers:
+      - command:
+        - nsenter
+        - --target
+        - "1"
+        - --mount
+        - --uts
+        - --ipc
+        - --net
+        - --pid
+        - --
+        - sh
+        - -c
+        - |
+          if cat /etc/containerd/config.toml | grep -q 'registry.mirrors';then
+             echo "insecure registry is already allowed"
+          else
+             echo -e "[plugins.\"io.containerd.grpc.v1.cri\".registry]\n[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors]\n[plugins.\"io.containerd.grpc.v1.cri\".registry.mirrors.\"10.240.0.5:5000\"]\n endpoint = [\"http://10.240.0.5:5000\"]""" >> /etc/containerd/config.toml
+             systemctl daemon-reload
+             systemctl restart containerd
+             echo "insecure registry is  allowed"
+          fi      
+          while true; do sleep 100000; done
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: insecure-registry
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: true
+      dnsPolicy: ClusterFirst
+      hostPID: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      restartPolicy: Always
+  updateStrategy:
+    type: RollingUpdate

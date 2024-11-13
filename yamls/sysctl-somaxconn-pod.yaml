@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  initContainers:
+    - command:
+        - sh
+        - -c
+        - sysctl -w net.core.somaxconn=3024;
+      image: alpine:3.6
+      imagePullPolicy: IfNotPresent
+      name: sysctl
+      securityContext:
+        privileged: true
+  containers:
+  - image: nginx
+    imagePullPolicy: Always
+    name: nginx
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  schedulerName: default-scheduler

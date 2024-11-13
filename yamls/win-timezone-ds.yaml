@@ -1,0 +1,45 @@
+#works on kubernetes 1.23+ https://kubernetes.io/docs/tasks/configure-pod-container/create-hostprocess-pod
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    component: win-timezone
+  name: win-timezone
+spec:
+  selector:
+    matchLabels:
+      component: win-timezone
+      tier: node
+  template:
+    metadata:
+      labels:
+        component: win-timezone
+        tier: node
+    spec:
+      #Enable node selector in case you need to run on specific node pool      
+      nodeSelector:
+        "kubernetes.io/os": windows
+      securityContext:
+        windowsOptions:
+          hostProcess: true
+          runAsUserName: "NT AUTHORITY\\Local service"
+      hostNetwork: true
+      containers:
+      - command:
+        - powershell.exe
+        - -command
+        #- "while ($true){Set-TimeZone -Name \"Arab Standard Time\"; Start-Sleep 3600}"
+        - "while ($true){Set-TimeZone -Id \"UTC\"; Start-Sleep 3600}"
+        image: mcr.microsoft.com/dotnet/framework/samples:aspnetapp
+        imagePullPolicy: IfNotPresent
+        name: win-timezone
+        resources:
+          requests:
+            cpu: 10m
+      dnsPolicy: ClusterFirst
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      restartPolicy: Always
+  updateStrategy:
+    type: RollingUpdate
