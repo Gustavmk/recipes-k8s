@@ -1,0 +1,11 @@
+Agora vamos queremos bloquear todo o acesso de entrada para os Pods do namespace giropops, para isso, vamos criar o arquivo nao-permitir-nada-externo.yaml com o seguinte conteúdo:
+
+O que mudou aqui foi o seguinte:
+
+policyTypes: Tipo de política que estamos criando, nesse caso, estamos criando uma política de entrada.
+ingress: Regras de entrada.
+    from: Origem do tráfego.
+    namespaceSelector: Seletor de Namespaces que podem acessar os Pods selecionados, nesse caso, somente o namespace giropops.
+    matchLabels: Labels dos Namespaces que podem acessar os Pods selecionados, nesse caso, somente o namespace giropops.
+    kubernetes.io/metadata.name: Nome do Namespace.
+    giropops: Valor do Nome do Namespace.
