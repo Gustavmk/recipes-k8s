@@ -1,5 +1,0 @@
-Mas com isso temos um problema, pois o nosso Ingress Controller não consegue acessar a nossa aplicação, pois ele está fora do namespace dev, então vamos criar uma Network Policy para permitir o acesso ao nosso Ingress Controller.
-
-Para isso, vamos criar o arquivo permitir-ingress-controller.yaml com o seguinte conteúdo:
-
-Aqui a solução foi super simples, pois somente adicionamos mais um seletor de Namespaces, para permitir o acesso ao nosso Ingress Controller. Com isso, tudo que estiver dentro do namespace ingress-nginx e giropops poderá acessar os Pods do namespace dev.
