@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# This script list all PVCs in the cluster and their storage usage.
+
 NODESAPI=/api/v1/nodes
 
 function getNodes() {
