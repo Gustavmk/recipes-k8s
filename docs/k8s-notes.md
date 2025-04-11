@@ -35,6 +35,13 @@ kubelet_volume_stats_capacity_bytes{persistentvolumeclaim="your-pvc"}
 
     kubectl create -f https://k8s.io/examples/admin/dns/busybox.yaml
     kubectl exec -ti busybox -- nslookup redis-master-0.redis-headless.redis.svc.cluster.local
+
+    # mongo
+    kubectl run -i --tty mongo-client --rm \
+  --image=mongo \
+  --restart=Never \
+  -- bash
+
 ```
 
 - Alpine 
