@@ -31,29 +31,32 @@ kubelet_volume_stats_capacity_bytes{persistentvolumeclaim="your-pvc"}
 - Busybox pod
 
 ```bash
-    kubectl run -i --tty --rm debug --image=busybox --restart=Never -- sh
+# Busybox - oneline command
+kubectl run -i --tty --rm debug --image=busybox --restart=Never -- sh
 
-    kubectl create -f https://k8s.io/examples/admin/dns/busybox.yaml
-    kubectl exec -ti busybox -- nslookup redis-master-0.redis-headless.redis.svc.cluster.local
+# Busybox - manifest as pod - ref https://k8s.io/examples/admin/dns/busybox.yaml
+kubectl create -f docs/example/pod-busybox.yaml
+kubectl exec -ti busybox -- nslookup redis-master-0.redis-headless.redis.svc.cluster.local
 
-    # mongo
-    kubectl run -i --tty mongo-client --rm \
+# mongo
+kubectl run -i --tty mongo-client --rm \
   --image=mongo \
   --restart=Never \
   -- bash
-
+mongosh "<conection string>"
 ```
 
-- Alpine 
+## Alpine 
     
-    A imagem alpine oferece mais flexibilidade para instalação de packges como curl e redis-cli usando apk 
+A imagem alpine oferece mais flexibilidade para instalação de packges como curl e redis-cli usando apk 
+
 ```bash
-    kubectl run -i --tty --rm alpine-debug --image=alpine --restart=Never -- sh
+kubectl run -i --tty --rm alpine-debug --image=alpine --restart=Never -- sh
 
-    apk add curl
-    apk add redis
+apk add curl
+apk add redis
 
-    redis-cli -h redis-svc.namespace.svc.cluster.local ping
+redis-cli -h redis-svc.namespace.svc.cluster.local ping
 ```
 
 - SVC
