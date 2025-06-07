@@ -39,9 +39,9 @@ curl -v http://localhost:8081/Invalid
 
 ```bash
 
-kubectl port-forward <azurite pod> 10000:10000 &
-kubectl port-forward <deployment pod> 8081:8080 &
-kubectl port-forward <deployment pod> 52323 &
+kubectl port-forward $(k get pod -l app=azurite) 10000 &
+kubectl port-forward $(k get pod -l app=akstest) 52323 &
+kubectl port-forward $(k get pod -l app=akstest) 8081:8080 &
 
 TOKEN_API="<token from dotnet monitor>"
 

@@ -11,6 +11,11 @@ spec:
     metadata:
       labels:
         app: akstest
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/metrics'
+        prometheus.io/port: '52325'
+        prometheus.io/scheme: 'http'
     spec:
       restartPolicy: Always
       securityContext:
@@ -34,17 +39,26 @@ spec:
       - name: monitor
         image: mcr.microsoft.com/dotnet/monitor:8
         imagePullPolicy: Always
+        ports:
+          - containerPort: 52325
+            name: metrics
+          - containerPort: 52323
+            name: dotnet-monitor
         env:
         - name: DotnetMonitor_DiagnosticPort__ConnectionMode
           value: 'Listen'
         - name: DotnetMonitor_DiagnosticPort__EndpointName
           value: /diag/port.sock
         - name: DotnetMonitor_Urls
-          value: 'http://localhost:52323'
+          value: 'http://0.0.0.0:52323'
         - name: DotnetMonitor_Storage__DumpTempFolder
           value: /diag/dumps
         - name: DotnetMonitor_Logging__Console__FormatterName
           value: simple
+        - name: DotnetMonitor_Metrics__Endpoints
+          value: "http://0.0.0.0:52325"
+        - name: DotnetMonitor_Metrics__MetricCount
+          value: "1"
         volumeMounts:
         - mountPath: /diag
           name: diagvol
@@ -72,3 +86,27 @@ spec:
                 optional: false
             - secret:
                 name: apikey
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: akstest-service
+  labels:
+    app: akstest
+spec:
+  selector:
+    app: akstest
+  ports:
+    - name: metrics
+      port: 52325
+      targetPort: 52325
+      protocol: TCP
+    - name: diagnostics
+      port: 52323
+      targetPort: 52323
+      protocol: TCP
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP
