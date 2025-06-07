@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azurite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azurite
+  template:
+    metadata:
+      labels:
+        app: azurite
+    spec:
+      containers:
+        - name: azurite
+          image: mcr.microsoft.com/azure-storage/azurite
+          command: ["azurite"]
+          args: ["--location", "/data", "--blobHost", "0.0.0.0","--queueHost", "0.0.0.0", "--tableHost", "0.0.0.0", "--disableProductStyleUrl", "--disableTelemetry"]
+          ports:
+            - containerPort: 10000  # Blob service port
+            - containerPort: 10001  # Queue service port
+            - containerPort: 10002  # Table service port
+          volumeMounts:
+            - mountPath: /data
+              name: azuritevol
+      volumes:
+      - name: azuritevol
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azurite
+spec:
+  selector:
+    app: azurite
+  ports:
+    - port: 10000
+      targetPort: 10000
+      protocol: TCP
+      name: blob
