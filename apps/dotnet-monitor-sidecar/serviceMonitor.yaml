@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: akstest-monitor
+  labels:
+    release: prometheus  # Must match the selector in your Prometheus CR
+    app: akstest
+spec:
+  selector:
+    matchLabels:
+      app: akstest
+  namespaceSelector:
+    matchNames:
+      - default  # Replace if your app is in a different namespace
+  endpoints:
+    - port: metrics
+      interval: 5s
+      path: /metrics
+      scheme: http
