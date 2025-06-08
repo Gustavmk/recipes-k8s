@@ -11,11 +11,6 @@ spec:
     metadata:
       labels:
         app: akstest
-      annotations:
-        prometheus.io/scrape: 'true'
-        prometheus.io/path: '/metrics'
-        prometheus.io/port: '52325'
-        prometheus.io/scheme: 'http'
     spec:
       restartPolicy: Always
       securityContext:
@@ -93,6 +88,11 @@ metadata:
   name: akstest-service
   labels:
     app: akstest
+  annotations:
+    prometheus.io/scrape: "true"  
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "52325"
+    prometheus.io/scheme: "http"
 spec:
   selector:
     app: akstest
